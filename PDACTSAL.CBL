@@ -101,9 +101,129 @@
        01  W-ACUMULADOR.
            05 WA-LEIDO-ENTRADA1             PIC 9(06) VALUE ZEROES.
            05 WA-LEIDO-SALIDA1              PIC 9(06) VALUE ZEROES.
+
+      *****************************************************************
+      *                         VARIABLES                             *
+      *****************************************************************
+       01  VARIABLES.
+           05 RESULTADO                     PIC 9(09)V99.
+           05 PORCENTAJE                    PIC 9(02) VALUE 05.
+
       *****************************************************************
       *                                                               *
       *               P R O C E D U R E  D I V I S I O N              *
       *                                                               *
       *****************************************************************
        PROCEDURE DIVISION.
+           PERFORM 1000-INICIO
+           PERFORM 2000-PROCESO
+                   UNTIL WS-FIN-ENTRADA1 EQUAL 'S'
+           PERFORM 3000-FINAL.
+      *****************************************************************
+      *                           INICIO                              *
+      *****************************************************************
+       1000-INICIO.
+           PERFORM 1100-ABRIR-ARCHIVOS
+           PERFORM 1200-LEER-ENTRADA1.
+      
+      *****************************************************************
+      *                      ABRIR ARCHIVOS                           *
+      *****************************************************************
+       1100-ABRIR-ARCHIVOS.
+
+           OPEN INPUT ENTRADA1
+                OUTPUT SALIDA1
+                       
+           IF WFS-ENTRADA1 EQUAL '00' AND
+              WFS-SALIDA1 EQUAL '00'
+              DISPLAY '****************************************'
+              DISPLAY 'LOS ARCHIVOS SE ABRIERON CORRECTAMENTE'
+              DISPLAY '****************************************'
+              CONTINUE
+           ELSE
+              DISPLAY 'ERROR EN ARCHIVO ENTRADA1' WFS-ENTRADA1
+              DISPLAY 'ERROR EN ARCHIVO SALIDA1' WFS-SALIDA1
+              PERFORM 3110-FIN-PROGRAMA
+           END-IF.
+      
+      *****************************************************************
+      *                        LEER ENTRADA1                          * 
+      *****************************************************************
+       1200-LEER-ENTRADA1.
+           READ ENTRADA1 INTO WRE-REG-ENT1
+           IF WFS-ENTRADA1 EQUAL '00'
+              ADD 1             TO WA-LEIDO-ENTRADA1 
+           ELSE
+              IF WFS-ENTRADA1 EQUAL '10'
+                 MOVE 'S' TO WS-FIN-ENTRADA1
+                 DISPLAY 'FIN DE LECTURA'
+      *           PERFORM 1110-FIN-PROGRAMA
+              END-IF
+           END-IF.
+      
+      *****************************************************************
+      *                          PROCESO                              *
+      *****************************************************************
+       2000-PROCESO.
+           PERFORM 2100-MOVER-SAL
+           PERFORM 2200-GRABAR-SAL
+           PERFORM 1200-LEER-ENTRADA1.
+      
+      *****************************************************************
+      *              MOVER VARIABLES DE ENTRADA1 A SALIDA1            *
+      *****************************************************************
+       2100-MOVER-SAL.
+           MOVE ENT1-ID-EMP              TO SAL1-ID-EMP
+           MOVE ENT1-NOMBRE              TO SAL1-NOMBRE
+           COMPUTE RESULTADO = (ENT1-SALARIO * PORCENTAJE)/100 +
+      -                          ENT1-SALARIO.
+           MOVE RESULTADO                TO SAL1-SALARIO.
+      
+      *****************************************************************
+      *                    GRABAR VARIABLES EN SALIDA1                *
+      *****************************************************************
+       2200-GRABAR-SAL.
+           WRITE REG-SALIDA1 FROM WRE-REG-SAL1.
+           IF WFS-SALIDA1 EQUAL '00'
+              DISPLAY 'REGISTRO AGREGADO'
+              DISPLAY '------------------'
+              ADD 1                      TO WA-LEIDO-SALIDA1
+              CONTINUE
+           ELSE
+              DISPLAY 'HUBO UN ERROR AL GRABAR EL ARCHIVO' WFS-SALIDA1
+              PERFORM 3110-FIN-PROGRAMA
+           END-IF.   
+
+      *****************************************************************
+      *                            FINAL                              *
+      *****************************************************************
+       3000-FINAL.
+           PERFORM 3100-CERRAR-ARCHIVOS
+           PERFORM 3200-CIFRAS-CONTROL
+           PERFORM 3110-FIN-PROGRAMA.
+      
+      *****************************************************************
+      *                         CERRAR ARCHIVOS                       *
+      *****************************************************************
+       3100-CERRAR-ARCHIVOS.
+           CLOSE ENTRADA1
+                 SALIDA1
+
+           IF WFS-ENTRADA1 EQUAL '00' AND
+              WFS-SALIDA1 EQUAL '00' 
+              DISPLAY '****************************************'
+              DISPLAY 'LOS ARCHIVOS SE CERRARON CORRECTAMENTE'
+              DISPLAY '****************************************'
+              CONTINUE
+           ELSE
+              DISPLAY 'ERROR AL CERRAR ARCHIVO ENTRADA1' WFS-ENTRADA1
+              DISPLAY 'ERROR AL CERRAR ARCHIVO SALIDA1' WFS-SALIDA1
+              PERFORM 3110-FIN-PROGRAMA
+           END-IF.
+       
+       3200-CIFRAS-CONTROL.
+           DISPLAY 'LEIDOS ENTRADA1 ' WA-LEIDO-ENTRADA1.
+           DISPLAY 'LEIDOS SALIDA1 ' WA-LEIDO-SALIDA1.
+
+       3110-FIN-PROGRAMA.
+           STOP RUN.
