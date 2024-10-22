@@ -19,7 +19,7 @@
        SOURCE-COMPUTER.   IBM-3090.
        OBJECT-COMPUTER.   IBM-3090.
        SPECIAL-NAMES.
-      
+
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
@@ -36,7 +36,7 @@
       *****************************************************************
            SELECT SALIDA1
            ASSIGN TO '../SALIDA1.TXT'
-           ORGANIZATION IS SEQUENTIAL
+           ORGANIZATION IS LINE SEQUENTIAL
            FILE STATUS IS WFS-SALIDA1.
 
       *****************************************************************
@@ -47,20 +47,20 @@
        DATA DIVISION.
        FILE SECTION.
 
-       FD  ENTRADA1 
+       FD  ENTRADA1
            RECORDING MODE IS F
            LABEL RECORDS ARE STANDARD
            BLOCK CONTAINS 0 RECORDS
            DATA RECORD IS REG-ENTRADA1.
        01  REG-ENTRADA1                     PIC X(36).
 
-       FD  SALIDA1 
+       FD  SALIDA1
            RECORDING MODE IS F
            LABEL RECORDS ARE STANDARD
            BLOCK CONTAINS 0 RECORDS
            DATA RECORD IS REG-SALIDA1.
        01  REG-SALIDA1                      PIC X(36).
-      
+
       *****************************************************************
       *                      WORKING-STORAGE SECTION                  *
       *****************************************************************
@@ -88,7 +88,7 @@
        01  W-FILE-STATUS.
            05 WFS-ENTRADA1                  PIC X(02) VALUE SPACES.
            05 WFS-SALIDA1                   PIC X(02) VALUE SPACES.
-      
+
       *****************************************************************
       *                           SWTICHES                            *
       *****************************************************************
@@ -125,7 +125,7 @@
        1000-INICIO.
            PERFORM 1100-ABRIR-ARCHIVOS
            PERFORM 1200-LEER-ENTRADA1.
-      
+
       *****************************************************************
       *                      ABRIR ARCHIVOS                           *
       *****************************************************************
@@ -133,7 +133,7 @@
 
            OPEN INPUT ENTRADA1
                 OUTPUT SALIDA1
-                       
+
            IF WFS-ENTRADA1 EQUAL '00' AND
               WFS-SALIDA1 EQUAL '00'
               DISPLAY '****************************************'
@@ -145,14 +145,14 @@
               DISPLAY 'ERROR EN ARCHIVO SALIDA1' WFS-SALIDA1
               PERFORM 3110-FIN-PROGRAMA
            END-IF.
-      
+
       *****************************************************************
-      *                        LEER ENTRADA1                          * 
+      *                        LEER ENTRADA1                          *
       *****************************************************************
        1200-LEER-ENTRADA1.
            READ ENTRADA1 INTO WRE-REG-ENT1
            IF WFS-ENTRADA1 EQUAL '00'
-              ADD 1             TO WA-LEIDO-ENTRADA1 
+              ADD 1             TO WA-LEIDO-ENTRADA1
            ELSE
               IF WFS-ENTRADA1 EQUAL '10'
                  MOVE 'S' TO WS-FIN-ENTRADA1
@@ -160,7 +160,7 @@
       *           PERFORM 1110-FIN-PROGRAMA
               END-IF
            END-IF.
-      
+
       *****************************************************************
       *                          PROCESO                              *
       *****************************************************************
@@ -168,7 +168,7 @@
            PERFORM 2100-MOVER-SAL
            PERFORM 2200-GRABAR-SAL
            PERFORM 1200-LEER-ENTRADA1.
-      
+
       *****************************************************************
       *              MOVER VARIABLES DE ENTRADA1 A SALIDA1            *
       *****************************************************************
@@ -178,7 +178,7 @@
            COMPUTE RESULTADO = (ENT1-SALARIO * PORCENTAJE)/100 +
       -                          ENT1-SALARIO.
            MOVE RESULTADO                TO SAL1-SALARIO.
-      
+
       *****************************************************************
       *                    GRABAR VARIABLES EN SALIDA1                *
       *****************************************************************
@@ -192,7 +192,7 @@
            ELSE
               DISPLAY 'HUBO UN ERROR AL GRABAR EL ARCHIVO' WFS-SALIDA1
               PERFORM 3110-FIN-PROGRAMA
-           END-IF.   
+           END-IF.
 
       *****************************************************************
       *                            FINAL                              *
@@ -201,7 +201,7 @@
            PERFORM 3100-CERRAR-ARCHIVOS
            PERFORM 3200-CIFRAS-CONTROL
            PERFORM 3110-FIN-PROGRAMA.
-      
+
       *****************************************************************
       *                         CERRAR ARCHIVOS                       *
       *****************************************************************
@@ -210,7 +210,7 @@
                  SALIDA1
 
            IF WFS-ENTRADA1 EQUAL '00' AND
-              WFS-SALIDA1 EQUAL '00' 
+              WFS-SALIDA1 EQUAL '00'
               DISPLAY '****************************************'
               DISPLAY 'LOS ARCHIVOS SE CERRARON CORRECTAMENTE'
               DISPLAY '****************************************'
@@ -220,7 +220,7 @@
               DISPLAY 'ERROR AL CERRAR ARCHIVO SALIDA1' WFS-SALIDA1
               PERFORM 3110-FIN-PROGRAMA
            END-IF.
-       
+
        3200-CIFRAS-CONTROL.
            DISPLAY 'LEIDOS ENTRADA1 ' WA-LEIDO-ENTRADA1.
            DISPLAY 'LEIDOS SALIDA1 ' WA-LEIDO-SALIDA1.
